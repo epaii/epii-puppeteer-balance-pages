@@ -1,0 +1,23 @@
+{
+  "name": "epii-puppeteer-balance-pages",
+  "version": "0.0.3",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/epaii/epii-puppeteer-balance-pages"
+  },
+  "keywords": [
+    "socket",
+    "server",
+    "node"
+  ],
+  "author": "MrRen-epii",
+  "license": "ISC",
+  "dependencies": {
+    "pupeteer": ">=0.0.1"
+  }
+}
