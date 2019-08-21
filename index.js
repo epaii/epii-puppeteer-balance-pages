@@ -29,7 +29,7 @@ function launch(page_num, launch_config, launch_type) {
 
                             page = await browser.newPage();
                         } else {
- 
+
                             page = (await (await puppeteer.launch(launch_config)).pages())[0];
                         }
                     }
@@ -39,7 +39,7 @@ function launch(page_num, launch_config, launch_type) {
                     page.ws.index = i;
                     page.ws.enable = true;
                     page.release = ((page) => {
-                        return function(){
+                        return function () {
                             page.ws.enable = true;
                             if (getPage.callbacks.length > 0)
                                 getPage.callbacks.shift()(page);
@@ -90,6 +90,7 @@ function doWork(callable) {
 
 module.exports = {
     launch: launch,
-    doWork: doWork
+    doWork: doWork,
+    getPage: getPage
 
 };
