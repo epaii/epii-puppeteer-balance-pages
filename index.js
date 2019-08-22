@@ -1,4 +1,5 @@
 var pages = [];
+var _launch_type = 0;
 
 function launch(page_num, launch_config, launch_type) {
 
@@ -9,6 +10,7 @@ function launch(page_num, launch_config, launch_type) {
     } else {
         launch_type = 1;
     }
+    _launch_type = launch_type;
     return new Promise(function (launch_ok, launch_error) {
         if (!puppeteer) {
             launch_error();
@@ -88,9 +90,56 @@ function doWork(callable) {
 }
 
 
+async function doWorkConcurrent(pageSize, callable) {
+    var promise_pages = [];
+    for (var i = 0; i < pageSize; i++) {
+
+        promise_pages.push((i => new Promise(function (ok, error) {
+            (async () => {
+                var page = await  getPage();
+                ok(await   callable(i, page));
+            })();
+        }))(i));
+    }
+
+    return await Promise.all(promise_pages);
+
+
+}
+
+async function close() {
+    if (_launch_type == 0) {
+        await pages[0].browser().close();
+    } else {
+        for (var i = 0; i < pages.length; i++)
+            await pages[i].browser().close();
+    }
+
+}
+
+async function setCookies(page, domain, cookies) {
+    for (var index in cookies) {
+        await page.setCookie({
+            name: index,
+            value: cookies[index],
+            domain: domain
+        });
+    }
+}
+
+async function setCookiesDomain(page, cookies) {
+    for (var domain in cookies) {
+        await setCookies(page, domain, cookies[domain]);
+    }
+}
+
 module.exports = {
     launch: launch,
     doWork: doWork,
-    getPage: getPage
+    newPage: getPage,
+    doWorkConcurrent: doWorkConcurrent,
+    close: close,
+    setCookies: setCookies,
+    setCookiesDomain: setCookiesDomain
 
 };
