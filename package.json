@@ -1,6 +1,6 @@
 {
   "name": "epii-puppeteer-balance-pages",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -16,8 +16,6 @@
     "node"
   ],
   "author": "MrRen-epii",
-  "license": "ISC",
-  "dependencies": {
-    "puppeteer": ">=0.0.1"
-  }
+  "license": "ISC"
+
 }
