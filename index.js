@@ -41,8 +41,11 @@ function launch(page_num, launch_config, launch_type) {
                     page.ws.index = i;
                     page.ws.enable = true;
                     page.release = ((page) => {
-                        return function () {
+
+                        return async function () {
+                            await  page.goto("about:blank");
                             page.ws.enable = true;
+
                             if (getPage.callbacks.length > 0)
                                 getPage.callbacks.shift()(page);
                         }
@@ -98,6 +101,7 @@ async function doWorkConcurrent(pageSize, callable) {
             (async () => {
                 var page = await  getPage();
                 ok(await   callable(i, page));
+                await page.release();
             })();
         }))(i));
     }
