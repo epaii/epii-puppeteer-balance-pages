@@ -148,7 +148,7 @@ _page_blance.prototype = {
             page.ws.enable = true;
             page.release = ((page) => {
 
-                return async function () {
+                return async function (gotoBlank = true) {
                     if (gotoBlank)
                         await page.goto("about:blank");
 
