@@ -42,12 +42,14 @@ function launch(page_num, launch_config, launch_type) {
                     page.ws.enable = true;
                     page.release = ((page) => {
 
-                        return async function () {
-                            await  page.goto("about:blank");
-                            page.ws.enable = true;
-
+                        return async function (gotoBlank= true) {
+                            if(gotoBlank)
+                              await page.goto("about:blank");
                             if (getPage.callbacks.length > 0)
                                 getPage.callbacks.shift()(page);
+                            else {
+                                page.ws.enable = true;
+                            }
                         }
 
                     })(page);
@@ -86,7 +88,7 @@ getPage.callbacks = [];
 
 function doWork(callable) {
     (async () => {
-        var page = await  getPage();
+        var page = await getPage();
         callable(page)
     })();
 
@@ -99,8 +101,8 @@ async function doWorkConcurrent(pageSize, callable) {
 
         promise_pages.push((i => new Promise(function (ok, error) {
             (async () => {
-                var page = await  getPage();
-                ok(await   callable(i, page));
+                var page = await getPage();
+                ok(await callable(i, page));
                 await page.release();
             })();
         }))(i));
@@ -120,6 +122,72 @@ async function close() {
     }
 
 }
+
+
+function _page_blance(browser, page_num) {
+    this.pages = [];
+    this.browser = browser;
+    this.page_num = page_num;
+    this.callbacks = [];
+    this.launch();
+
+}
+
+_page_blance.prototype = {
+    launch: async () => {
+        let page_num = this.page_num;
+        let browser = this.browser;
+        var that = this;
+
+        for (var i = 0; i < page_num; i++) {
+
+            var page = await browser.newPage();
+
+            page.ws = {};
+            page.ws.index = i;
+            page.ws.enable = true;
+            page.release = ((page) => {
+
+                return async function () {
+                    await page.goto("about:blank");
+                    page.ws.enable = true;
+                    if (that.callbacks.length > 0)
+                        that.callbacks.shift()(page);
+                }
+
+            })(page);
+
+            this.pages.push(page);
+
+        }
+
+    },
+    doWork: (callable) => {
+
+        var that = this;
+        (async () => {
+            var page = await that.getPage();
+            callable(page)
+        })();
+
+    },
+    getPage: () => {
+        var pages = this.pages;
+        var that = this;
+        return new Promise(function (ok, error) {
+            for (var i = 0; i < pages.length; i++) {
+
+                if (pages[i].ws.enable) {
+                    pages[i].ws.enable = false;
+                    ok(pages[i]);
+                    return;
+                }
+            }
+            that.callbacks.push(ok);
+        });
+    }
+};
+
 
 async function setCookies(page, domain, cookies) {
     for (var index in cookies) {
@@ -144,6 +212,9 @@ module.exports = {
     doWorkConcurrent: doWorkConcurrent,
     close: close,
     setCookies: setCookies,
-    setCookiesDomain: setCookiesDomain
+    setCookiesDomain: setCookiesDomain,
+    new_page_blance: function (browser, page_num) {
+        return new _page_blance(browser, page_num)
+    }
 
 };
