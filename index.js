@@ -42,9 +42,9 @@ function launch(page_num, launch_config, launch_type) {
                     page.ws.enable = true;
                     page.release = ((page) => {
 
-                        return async function (gotoBlank= true) {
-                            if(gotoBlank)
-                              await page.goto("about:blank");
+                        return async function (gotoBlank = true) {
+                            if (gotoBlank)
+                                await page.goto("about:blank");
                             if (getPage.callbacks.length > 0)
                                 getPage.callbacks.shift()(page);
                             else {
@@ -149,11 +149,17 @@ _page_blance.prototype = {
             page.release = ((page) => {
 
                 return async function () {
-                    await page.goto("about:blank");
-                    page.ws.enable = true;
+                    if (gotoBlank)
+                        await page.goto("about:blank");
+
                     if (that.callbacks.length > 0)
                         that.callbacks.shift()(page);
+                    else {
+                        page.ws.enable = true;
+                    }
                 }
+
+
 
             })(page);
 
@@ -209,6 +215,7 @@ module.exports = {
     launch: launch,
     doWork: doWork,
     newPage: getPage,
+    getPage,getPage,
     doWorkConcurrent: doWorkConcurrent,
     close: close,
     setCookies: setCookies,
