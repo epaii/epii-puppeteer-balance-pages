@@ -129,6 +129,7 @@ async function close() {
         for (var i = 0; i < pages.length; i++)
             await pages[i].browser().close();
     }
+    pages=[];
 
 }
 
@@ -237,7 +238,6 @@ module.exports = {
     launch: launch,
     doWork: doWork,
     newPage: getPage,
-    getPage,
     getPage,
     doWorkConcurrent: doWorkConcurrent,
     close: close,
