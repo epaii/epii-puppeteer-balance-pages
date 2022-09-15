@@ -1,7 +1,7 @@
 var pages = [];
 var _launch_type = 0;
 
-function launch(page_num, launch_config, launch_type, tagFunction,initFunction) {
+function launch(page_num, launch_config, launch_type, tagFunction,initFunction,browserInitFunction) {
 
     const puppeteer = require('puppeteer');
 
@@ -18,7 +18,9 @@ function launch(page_num, launch_config, launch_type, tagFunction,initFunction) 
         }
         (async () => {
             var browser = await puppeteer.launch(launch_config);
-
+            if (browserInitFunction && (typeof browserInitFunction==="function")) {
+                await browserInitFunction(browser,0);
+            }
 
             async function newPages() {
 
@@ -31,8 +33,11 @@ function launch(page_num, launch_config, launch_type, tagFunction,initFunction) 
 
                             page = await browser.newPage();
                         } else {
-
-                            page = (await (await puppeteer.launch(launch_config)).pages())[0];
+                            var browser_tmp =  await puppeteer.launch(launch_config);
+                            if (browserInitFunction && (typeof browserInitFunction==="function")) {
+                                await browserInitFunction(browser_tmp,i);
+                            }
+                            page = (await browser_tmp.pages())[0];
                         }
                     }
 
@@ -130,6 +135,7 @@ async function close() {
             await pages[i].browser().close();
     }
     pages=[];
+
 
 }
 
